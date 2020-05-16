@@ -20,23 +20,33 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
  */
 public class M3U8Downloader {
 
-    public static InputStream downVideo(String m3u8Url, String toFile) {
-        try {
-            M3U8 m3u8 = parseIndex(m3u8Url);
-            File file = new File(toFile + "\\video.ts");
-            merge(m3u8, file);
-            InputStream inputStream = new FileInputStream(file);
-            if (file.exists()) {
-                System.out.println(file.delete());
-            }
-            return inputStream;
+    public static InputStream downVideo(String m3u8Url, String toFile) throws IOException {
+        System.out.println("resource url: " + m3u8Url);
+        M3U8 m3u8 = parseIndex(m3u8Url);
+        m3u8 = parseIndex(m3u8.getTsList().get(0).getFile());
+        File file = new File(toFile + "\\video.ts");
+        merge(m3u8, file);
+        System.out.println(m3u8.getTsList().toString());
+        InputStream inputStream = new FileInputStream(file);
+        if (file.exists()) {
+            System.out.println(file.delete());
+        }
+        return inputStream;
+    }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
+
+    public static void main(String[] args) {
+        String url = "https://secure.brightcove.com/services/mobile/streaming/index/rendition.m3u8?assetId=6125477020001&secure=true&videoId=6125468486001";
+        try {
+            M3U8 m3u8 = parseIndex(url);
+//            m3u8 = parseIndex(m3u8.getTsList().get(0).getFile());
+            File file = new File("/Users/lslnx_0307/Desktop/video.ts");
+            merge(m3u8, file);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+
     }
 
     public static void merge(M3U8 m3u8, File file) throws IOException {

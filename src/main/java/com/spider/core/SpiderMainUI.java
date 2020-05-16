@@ -16,7 +16,7 @@ import java.awt.Component;
  * @date 2020/5/15
  */
 public class SpiderMainUI {
-
+    public static final String SEACH_URL = "https://www.nike.com/cn/w?q={skuCode}&vst={skuCode}";
 
     public void initJframe() {
         JFrame jFrame = new JFrame();
@@ -86,9 +86,13 @@ public class SpiderMainUI {
                 System.out.println(skuCodeText.getText() + "|" + pdpUrlText.getText() + " | " + cssStyleText.getText());
                 SpiderCommand spiderCommand = new SpiderCommand();
                 spiderCommand.setSkuCode(skuCodeText.getText());
-                if (StringUtils.isNotBlank(pdpUrlText.getText())) {
-                    spiderCommand.setMasterStationUrl(pdpUrlText.getText());
-                    spiderCommand.setPdpUrl(pdpUrlText.getText());
+                if (StringUtils.isNotBlank(skuCodeText.getText())) {
+                    spiderCommand.setMasterStationUrl(StringUtils.replaceEachRepeatedly(SEACH_URL, new String[]{"{skuCode}","{skuCode}"}, new String[]{skuCodeText.getText(),skuCodeText.getText()}));
+                } else {
+                    if (StringUtils.isNotBlank(pdpUrlText.getText())) {
+                        spiderCommand.setMasterStationUrl(pdpUrlText.getText());
+                        spiderCommand.setPdpUrl(pdpUrlText.getText());
+                    }
                 }
                 spiderCommand.setCssStyle(cssStyleText.getText());
                 spiderCommand.setExportPath(selectPath);

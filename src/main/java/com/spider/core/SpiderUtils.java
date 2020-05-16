@@ -1,6 +1,8 @@
 package com.spider.core;
 
 
+import java.io.ByteArrayInputStream;
+import java.util.stream.IntStream;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -32,11 +34,15 @@ import java.util.logging.Level;
 
 /**
  * spider 工具类
+ *
  * @author shiliang.li
  * @date 2020/5/15
  */
 public class SpiderUtils {
 
+    public static final String MASTER_M3U8_URL = "https://secure.brightcove.com/services/mobile/streaming/index/master.m3u8?videoId={videoId}&secure=true";
+
+    private static InputStream copyWriteInputStream;
 
     public static void downZip(SpiderCommand spiderCommand) {
         if (spiderCommand != null) {
@@ -52,11 +58,9 @@ public class SpiderUtils {
     private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) {
         try {
             if (CollectionUtils.isNotEmpty(imageSet)) {
-                imageSet.forEach(e->{
-                    System.out.println(e);
-                });
+                imageSet.forEach(e -> System.out.println(e));
                 AtomicInteger index = new AtomicInteger();
-                ZipFile zipFile = new ZipFile(spiderCommand.getExportPath() +"\\"+ spiderCommand.getSkuCode() + ".zip");
+                ZipFile zipFile = new ZipFile(spiderCommand.getExportPath() + spiderCommand.getSkuCode() + ".zip");
                 ZipParameters zipParameters = new ZipParameters();
                 //设置压缩方法
                 zipParameters.setCompressionMethod(CompressionMethod.DEFLATE);
@@ -77,13 +81,14 @@ public class SpiderUtils {
                         }
                         zipFile.addStream(inputStream, zipParameters);
                         inputStream.close();
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                 }
+                zipParameters.setFileNameInZip(spiderCommand.getSkuCode() + ".txt");
+                zipFile.addStream(copyWriteInputStream, zipParameters);
+                copyWriteInputStream.close();
 
             }
         } catch (Exception e) {
@@ -94,19 +99,19 @@ public class SpiderUtils {
 
     private static String getImgFileType(String s) {
         String[] split = s.split("/");
-        return split[split.length -1];
+        return split[split.length - 1];
     }
 
     private static Set<String> parsePage(ChromeDriver chromeDriver, SpiderCommand spiderCommand) {
         Set<String> imageSet = new HashSet<String>();
         if (spiderCommand != null && chromeDriver != null) {
             if (StringUtils.isNotBlank(spiderCommand.getSkuCode())) {
-                WebElement pdpElement = chromeDriver.findElement(By.cssSelector(
-                        "#Wall > div > div.results__body > div > main > section > div > div > div > figure > a.product-card__link-overlay"));
+                WebElement pdpElement = chromeDriver.findElement(By.xpath(
+                        "//*[@id=\"Wall\"]/div/div[5]/div/main/section/div/div/div/figure/a[1]"));
                 String pdpUrl = pdpElement.getAttribute("href");
                 spiderCommand.setMasterStationUrl(pdpUrl);
                 chromeDriver.get(pdpUrl);
-            }else {
+            } else {
                 String pdpUrl = spiderCommand.getPdpUrl();
                 String[] split = pdpUrl.split("/");
                 String skuCode = split[split.length - 1];
@@ -122,18 +127,37 @@ public class SpiderUtils {
                 e.printStackTrace();
             }
             // 直接进入pdp页面
-            String context = (String)chromeDriver.executeScript("return document.documentElement.outerHTML");
+            String context = (String) chromeDriver.executeScript("return document.documentElement.outerHTML");
             Document document = Jsoup.parse(context);
             Elements select = document.getElementsByClass(spiderCommand.getCssStyle());
-            String html = select.html();
-            getFileUrlList(html, imageSet);
+            if (select != null) {
+                String html = select.html();
+                getFileUrlList(html, imageSet);
+                //获取文案内容
+                StringBuffer copyWriting = new StringBuffer();
+                for (Element element : select) {
+                    copyWriting.append(element.getElementsByTag("h3").text() + "\n");
+                    copyWriting.append(element.getElementsByTag("p").text() + "\n");
+                    copyWriting.append("\n");
+                    System.out.println(element.getElementsByTag("h3").text());
+                    System.out.println(element.getElementsByTag("p").text());
+                }
+                copyWriteInputStream = new ByteArrayInputStream(copyWriting.toString().getBytes());
+            }
+
         }
         return imageSet;
     }
 
     private static ChromeDriver openChrome(SpiderCommand spiderCommand) {
         java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\jm009218\\Desktop\\chromedriver.exe");
+        //get system os type mac or windows
+        String osName = System.getProperty("os.name");
+        String chromeDriverPath = "src/main/resources/chromedriver";
+        if (!osName.contains("Mac")) {
+            chromeDriverPath = "src/main/resources/chromedriver.exe";
+        }
+        System.setProperty("webdriver.chrome.driver", chromeDriverPath);
         System.setProperty("https.protocols", "TLSv1.2");
         ChromeOptions options = new ChromeOptions();
         List<String> op = new ArrayList<String>();
@@ -142,10 +166,11 @@ public class SpiderUtils {
         // 设置无操作界面
         op.add("--headless");
         options.addArguments(op);
-        ChromeDriver chromeDriver  = new ChromeDriver(options);
+        ChromeDriver chromeDriver = new ChromeDriver(options);
         // 设置超时时间
         chromeDriver.manage().timeouts().pageLoadTimeout(90, TimeUnit.SECONDS);
-        chromeDriver.manage().timeouts().implicitlyWait(120,TimeUnit.SECONDS);
+        chromeDriver.manage().timeouts().implicitlyWait(120, TimeUnit.SECONDS);
+        System.out.println(spiderCommand.getMasterStationUrl());
         chromeDriver.get(spiderCommand.getMasterStationUrl());
         return chromeDriver;
     }
@@ -153,18 +178,19 @@ public class SpiderUtils {
     private static void getFileUrlList(String context, Set<String> imgUrls) {
         eachTag(context, imgUrls, "source", "srcset");
         eachTag(context, imgUrls, "img", "src");
-        if (context.contains("video")) {
-            eachTag(context, imgUrls, "video", "src");
-        }
+        eachTag(context, imgUrls, "video", "data-video-id");
+
     }
 
     private static void eachTag(String context, Set<String> result, String tag, String attr) {
         Document jsoup = Jsoup.parse(context);
         Elements sources = jsoup.getElementsByTag(tag);
+        String srcset;
         for (Element source : sources) {
-            String srcset = source.attr(attr);
             if (tag.equals("video")) {
-                srcset = srcset.replace("blob:", "");
+                srcset = MASTER_M3U8_URL.replace("{videoId}", source.attr(attr));
+            } else {
+                srcset = source.attr(attr);
             }
             result.add(srcset);
         }
