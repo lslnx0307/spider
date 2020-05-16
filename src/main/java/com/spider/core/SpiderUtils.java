@@ -1,10 +1,7 @@
 package com.spider.core;
 
 
-import java.io.ByteArrayInputStream;
-import java.util.stream.IntStream;
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
@@ -19,10 +16,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -153,9 +149,11 @@ public class SpiderUtils {
         java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
         //get system os type mac or windows
         String osName = System.getProperty("os.name");
-        String chromeDriverPath = "src/main/resources/chromedriver";
+        SpiderUtils spiderUtils = new SpiderUtils();
+        System.out.println("lsl_"+ spiderUtils.getFilePath());
+        String chromeDriverPath = SpiderMainUI.class.getResource("/").getPath() + "chromedriver";
         if (!osName.contains("Mac")) {
-            chromeDriverPath = "src/main/resources/chromedriver.exe";
+            chromeDriverPath = "driver/chromedriver.exe";
         }
         System.setProperty("webdriver.chrome.driver", chromeDriverPath);
         System.setProperty("https.protocols", "TLSv1.2");
@@ -196,4 +194,8 @@ public class SpiderUtils {
         }
     }
 
+    private String getFilePath() {
+        URL chromedriver = this.getClass().getResource("/chromedriver");
+        return chromedriver.getPath();
+    }
 }
