@@ -19,6 +19,8 @@ public class SpiderCommand {
 
     private String exportPath;
 
+    private String chromDriverPath;
+
     public String getSkuCode() {
         return skuCode;
     }
@@ -57,5 +59,13 @@ public class SpiderCommand {
 
     public void setExportPath(String exportPath) {
         this.exportPath = exportPath;
+    }
+
+    public String getChromDriverPath() {
+        return chromDriverPath;
+    }
+
+    public void setChromDriverPath(String chromDriverPath) {
+        this.chromDriverPath = chromDriverPath;
     }
 }

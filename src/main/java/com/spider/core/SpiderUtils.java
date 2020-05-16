@@ -40,7 +40,7 @@ public class SpiderUtils {
 
     private static InputStream copyWriteInputStream;
 
-    public static void downZip(SpiderCommand spiderCommand) {
+    public static void downZip(SpiderCommand spiderCommand) throws Exception{
         if (spiderCommand != null) {
             //todo 打开浏览器
             ChromeDriver chromeDriver = openChrome(spiderCommand);
@@ -48,11 +48,14 @@ public class SpiderUtils {
             Set<String> strings = parsePage(chromeDriver, spiderCommand);
             //todo 打包下载图片
             packaging(strings, spiderCommand);
+            if (chromeDriver != null) {
+                chromeDriver.close();
+            }
         }
     }
 
-    private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) {
-        try {
+    private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) throws Exception{
+
             if (CollectionUtils.isNotEmpty(imageSet)) {
                 imageSet.forEach(e -> System.out.println(e));
                 AtomicInteger index = new AtomicInteger();
@@ -87,9 +90,7 @@ public class SpiderUtils {
                 copyWriteInputStream.close();
 
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         System.out.println("down success");
     }
 
@@ -115,10 +116,20 @@ public class SpiderUtils {
             }
             // 滚动条置地
             chromeDriver.executeScript("window.scrollTo(0,document.body.scrollHeight)");
-            chromeDriver.executeScript("window.scrollTo(0,document.body.scrollHeight)");
+            try {
+                Thread.sleep(6000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             chromeDriver.executeScript("window.scrollTo(0,document.body.scrollHeight)");
             try {
-                Thread.sleep(30000);
+                Thread.sleep(6000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            chromeDriver.executeScript("window.scrollTo(0,document.body.scrollHeight)");
+            try {
+                Thread.sleep(6000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -128,6 +139,7 @@ public class SpiderUtils {
             Elements select = document.getElementsByClass(spiderCommand.getCssStyle());
             if (select != null) {
                 String html = select.html();
+                System.out.println("html->" + html);
                 getFileUrlList(html, imageSet);
                 //获取文案内容
                 StringBuffer copyWriting = new StringBuffer();
@@ -148,14 +160,7 @@ public class SpiderUtils {
     private static ChromeDriver openChrome(SpiderCommand spiderCommand) {
         java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
         //get system os type mac or windows
-        String osName = System.getProperty("os.name");
-        SpiderUtils spiderUtils = new SpiderUtils();
-        System.out.println("lsl_"+ spiderUtils.getFilePath());
-        String chromeDriverPath = SpiderMainUI.class.getResource("/").getPath() + "chromedriver";
-        if (!osName.contains("Mac")) {
-            chromeDriverPath = "driver/chromedriver.exe";
-        }
-        System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+        System.setProperty("webdriver.chrome.driver", spiderCommand.getChromDriverPath());
         System.setProperty("https.protocols", "TLSv1.2");
         ChromeOptions options = new ChromeOptions();
         List<String> op = new ArrayList<String>();
@@ -194,8 +199,4 @@ public class SpiderUtils {
         }
     }
 
-    private String getFilePath() {
-        URL chromedriver = this.getClass().getResource("/chromedriver");
-        return chromedriver.getPath();
-    }
 }

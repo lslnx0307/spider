@@ -17,8 +17,9 @@ public class SpiderMainUI {
         jFrame.setName("主界面");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setLocation(500, 500);
-        jFrame.setSize(500, 300);
-        ImageIcon imageIcon = new ImageIcon("src/main/resources/image/icon_1.png");
+        jFrame.setSize(600, 300);
+        jFrame.setResizable(false);
+        ImageIcon imageIcon = new ImageIcon(getClass().getResource("/image/icon_1.png"));
         jFrame.setIconImage(imageIcon.getImage());
         JPanel panel = new JPanel();
         jFrame.add(panel);
@@ -63,7 +64,27 @@ public class SpiderMainUI {
         cssStyleText.setText("css-1bhwifz");
         panel.add(cssStyleText);
 
+        JLabel chromeDriverLabel = new JLabel("chromeDriver:");
+        chromeDriverLabel.setBounds(30,110,80,25);
+        panel.add(chromeDriverLabel);
+        JTextField chromeDriverText = new JTextField();
+        chromeDriverText.setBounds(150,110,300,25);
+        panel.add(chromeDriverText);
 
+        JButton chromeDriverBtn = new JButton("打开");
+        chromeDriverBtn.setBounds(460, 110, 80, 25);
+        chromeDriverBtn.addActionListener(e -> {
+            //文件下载保存地址
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            Component component = null;
+            int saveDialog = jFileChooser.showSaveDialog(component);
+            if (saveDialog == JFileChooser.APPROVE_OPTION) {
+                String selectPath = jFileChooser.getSelectedFile().getPath();
+                chromeDriverText.setText(selectPath);
+            }
+        });
+        panel.add(chromeDriverBtn);
 
         // 抓取
         JButton spiderBtn = new JButton("抓取");
@@ -76,7 +97,7 @@ public class SpiderMainUI {
             int saveDialog = jFileChooser.showSaveDialog(component);
             if (saveDialog == JFileChooser.APPROVE_OPTION) {
                 // 获得路径
-                String selectPath = jFileChooser.getSelectedFile().getPath();
+                String selectPath = jFileChooser.getSelectedFile().getPath() +"\\";
                 System.out.println("你选择的目录是：" + selectPath);
 
                 System.out.println(skuCodeText.getText() + "|" + pdpUrlText.getText() + " | " + cssStyleText.getText());
@@ -92,7 +113,14 @@ public class SpiderMainUI {
                 }
                 spiderCommand.setCssStyle(cssStyleText.getText());
                 spiderCommand.setExportPath(selectPath);
-                SpiderUtils.downZip(spiderCommand);
+                spiderCommand.setChromDriverPath(chromeDriverText.getText());
+                try {
+                    SpiderUtils.downZip(spiderCommand);
+                    JOptionPane.showMessageDialog(null, "下载成功！","", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "下载失败！","", JOptionPane.ERROR_MESSAGE);
+                }
 
             }
 
