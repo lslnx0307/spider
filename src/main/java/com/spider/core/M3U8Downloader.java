@@ -1,18 +1,11 @@
 package com.spider.core;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 
 /**
  * @author shiliang.li
@@ -28,9 +21,8 @@ public class M3U8Downloader {
         merge(m3u8, file);
         System.out.println(m3u8.getTsList().toString());
         InputStream inputStream = new FileInputStream(file);
-        if (file.exists()) {
-            System.out.println(file.delete());
-        }
+        System.out.println("file的path：" + file.getPath());
+        System.out.println("file是否存在：" + file.exists());
         return inputStream;
     }
 

@@ -17,6 +17,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -41,17 +42,29 @@ public class SpiderUtils {
     private static InputStream copyWriteInputStream;
 
     public static void downZip(SpiderCommand spiderCommand) throws Exception{
-        if (spiderCommand != null) {
-            //todo 打开浏览器
-            ChromeDriver chromeDriver = openChrome(spiderCommand);
-            //todo 解析页面中的素材和文案
-            Set<String> strings = parsePage(chromeDriver, spiderCommand);
-            //todo 打包下载图片
-            packaging(strings, spiderCommand);
+        ChromeDriver chromeDriver = null;
+        try {
+            if (spiderCommand != null) {
+                //todo 打开浏览器
+                chromeDriver = openChrome(spiderCommand);
+                //todo 解析页面中的素材和文案
+                Set<String> strings = parsePage(chromeDriver, spiderCommand);
+                //todo 打包下载图片
+                packaging(strings, spiderCommand);
+               
+
+            }
+        }finally {
             if (chromeDriver != null) {
                 chromeDriver.close();
             }
+            //视频文件
+            File ts = new File(spiderCommand.getExportPath() + "\\video.ts");
+            if (ts.exists()) {
+                ts.delete();
+            }
         }
+
     }
 
     private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) throws Exception{
@@ -165,14 +178,13 @@ public class SpiderUtils {
         ChromeOptions options = new ChromeOptions();
         List<String> op = new ArrayList<String>();
         // 设置浏览器最大window size
-        op.add("--start-maximized");
+        op.add("--start-1920,1080");
         // 设置无操作界面
-        op.add("--headless");
+//        op.add("--headless");
         options.addArguments(op);
         ChromeDriver chromeDriver = new ChromeDriver(options);
         // 设置超时时间
-        chromeDriver.manage().timeouts().pageLoadTimeout(90, TimeUnit.SECONDS);
-        chromeDriver.manage().timeouts().implicitlyWait(120, TimeUnit.SECONDS);
+        chromeDriver.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
         System.out.println(spiderCommand.getMasterStationUrl());
         chromeDriver.get(spiderCommand.getMasterStationUrl());
         return chromeDriver;

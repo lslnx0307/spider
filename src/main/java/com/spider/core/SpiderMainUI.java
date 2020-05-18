@@ -44,38 +44,38 @@ public class SpiderMainUI {
 
         // 创建 skuCodeJLabel
         JLabel skuCodeLabel = new JLabel("skuCode:");
-        skuCodeLabel.setBounds(50,30,80,25);
+        skuCodeLabel.setBounds(50,40,80,25);
         panel.add(skuCodeLabel);
         JTextField skuCodeText = new JTextField();
-        skuCodeText.setBounds(150,20,300,25);
+        skuCodeText.setBounds(150,40,300,25);
         panel.add(skuCodeText);
 
         // pdpurl
         JLabel pdpUrlLabel = new JLabel("pdpUrl:");
-        pdpUrlLabel.setBounds(50,50,80,25);
+        pdpUrlLabel.setBounds(50,70,80,25);
         panel.add(pdpUrlLabel);
         JTextField pdpUrlText = new JTextField();
-        pdpUrlText.setBounds(150,50,300,25);
+        pdpUrlText.setBounds(150,70,300,25);
         panel.add(pdpUrlText);
 
         // cssStyle
         JLabel cssStyleLabel = new JLabel("cssStyle:");
-        cssStyleLabel.setBounds(50,80,80,25);
+        cssStyleLabel.setBounds(50,100,80,25);
         panel.add(cssStyleLabel);
         JTextField cssStyleText = new JTextField();
-        cssStyleText.setBounds(150,80,300,25);
+        cssStyleText.setBounds(150,100,300,25);
         cssStyleText.setText("css-1bhwifz");
         panel.add(cssStyleText);
 
         JLabel chromeDriverLabel = new JLabel("chromeDriver:");
-        chromeDriverLabel.setBounds(20,110,100,25);
+        chromeDriverLabel.setBounds(20,130,100,25);
         panel.add(chromeDriverLabel);
         JTextField chromeDriverText = new JTextField();
-        chromeDriverText.setBounds(150,110,300,25);
+        chromeDriverText.setBounds(150,130,300,25);
         panel.add(chromeDriverText);
 
         JButton chromeDriverBtn = new JButton("打开");
-        chromeDriverBtn.setBounds(460, 110, 80, 25);
+        chromeDriverBtn.setBounds(460, 130, 80, 25);
         chromeDriverBtn.addActionListener(e -> {
             //文件下载保存地址
             JFileChooser jFileChooser = new JFileChooser();
@@ -91,7 +91,7 @@ public class SpiderMainUI {
 
         // 抓取
         JButton spiderBtn = new JButton("抓取");
-        spiderBtn.setBounds(220, 150, 80, 25);
+        spiderBtn.setBounds(220, 170, 80, 25);
         spiderBtn.addActionListener(e -> {
             //文件下载保存地址
             JFileChooser jFileChooser = new JFileChooser();
