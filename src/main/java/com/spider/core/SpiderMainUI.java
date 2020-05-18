@@ -10,7 +10,7 @@ import java.awt.*;
  * @date 2020/5/15
  */
 public class SpiderMainUI {
-    public static final String SEACH_URL = "https://www.nike.com/cn/w?q={skuCode}&vst={skuCode}";
+    public static final String SEACH_URL = "/w?q={skuCode}&vst={skuCode}";
 
     public void initJframe() {
         JFrame jFrame = new JFrame();
@@ -34,14 +34,17 @@ public class SpiderMainUI {
          */
         panel.setLayout(null);
 
+
+        JLabel nikeUrl = new JLabel("nikeUrl");
+        nikeUrl.setBounds(50,10,80,25);
+        panel.add(nikeUrl);
+        JTextField nikeUrlText = new JTextField();
+        nikeUrlText.setBounds(150,10,300,25);
+        panel.add(nikeUrlText);
+
         // 创建 skuCodeJLabel
         JLabel skuCodeLabel = new JLabel("skuCode:");
-        skuCodeLabel.setBackground(Color.BLUE);
-        /* 这个方法定义了组件的位置。
-         * setBounds(x, y, width, height)
-         * x 和 y 指定左上角的新位置，由 width 和 height 指定新的大小。
-         */
-        skuCodeLabel.setBounds(50,20,80,25);
+        skuCodeLabel.setBounds(50,30,80,25);
         panel.add(skuCodeLabel);
         JTextField skuCodeText = new JTextField();
         skuCodeText.setBounds(150,20,300,25);
@@ -65,7 +68,7 @@ public class SpiderMainUI {
         panel.add(cssStyleText);
 
         JLabel chromeDriverLabel = new JLabel("chromeDriver:");
-        chromeDriverLabel.setBounds(30,110,80,25);
+        chromeDriverLabel.setBounds(20,110,100,25);
         panel.add(chromeDriverLabel);
         JTextField chromeDriverText = new JTextField();
         chromeDriverText.setBounds(150,110,300,25);
@@ -104,7 +107,9 @@ public class SpiderMainUI {
                 SpiderCommand spiderCommand = new SpiderCommand();
                 spiderCommand.setSkuCode(skuCodeText.getText());
                 if (StringUtils.isNotBlank(skuCodeText.getText())) {
-                    spiderCommand.setMasterStationUrl(StringUtils.replaceEachRepeatedly(SEACH_URL, new String[]{"{skuCode}","{skuCode}"}, new String[]{skuCodeText.getText(),skuCodeText.getText()}));
+                    spiderCommand.setMasterStationUrl(nikeUrlText.getText()
+                            + StringUtils.replaceEachRepeatedly(SEACH_URL, new String[]{"{skuCode}", "{skuCode}"},
+                            new String[]{skuCodeText.getText(), skuCodeText.getText()}));
                 } else {
                     if (StringUtils.isNotBlank(pdpUrlText.getText())) {
                         spiderCommand.setMasterStationUrl(pdpUrlText.getText());
