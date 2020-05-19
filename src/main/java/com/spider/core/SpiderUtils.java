@@ -1,21 +1,6 @@
 package com.spider.core;
 
 
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.model.enums.CompressionLevel;
-import net.lingala.zip4j.model.enums.CompressionMethod;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +13,22 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 
 /**
  * spider 工具类
@@ -66,6 +67,7 @@ public class SpiderUtils {
         }
 
     }
+
 
     private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) throws Exception{
 
@@ -178,9 +180,9 @@ public class SpiderUtils {
         ChromeOptions options = new ChromeOptions();
         List<String> op = new ArrayList<String>();
         // 设置浏览器最大window size
-        op.add("--start-1920,1080");
+        op.add("--start-1990,1030");
         // 设置无操作界面
-//        op.add("--headless");
+        op.add("--headless");
         options.addArguments(op);
         ChromeDriver chromeDriver = new ChromeDriver(options);
         // 设置超时时间
