@@ -18,8 +18,6 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 
-import cn.hutool.core.util.StrUtil;
-
 /**
  * @author shiliang.li
  * @date 2020/5/19
@@ -36,31 +34,31 @@ public class MainUI extends JFrame implements ActionListener, TextListener {
      */
     public static final String CHROME_DRIVER = "D:\\chromedriver\\chromedriver.exe";
 
-    private JLabel nikeUrlLabel;
+    private final JLabel nikeUrlLabel;
 
-    private JTextField nikeUrlText;
+    private final JTextField nikeUrlText;
 
-    private JLabel skuCodeLabel;
+    private final JLabel skuCodeLabel;
 
-    private JTextField skuCodeText;
+    private final JTextField skuCodeText;
 
-    private JLabel pdpUrlLabel;
+    private final JLabel pdpUrlLabel;
 
-    private JTextField pdpUrlText;
+    private final JTextField pdpUrlText;
 
-    private JLabel cssStyleLabel;
+    private final JLabel cssStyleLabel;
 
-    private JTextField cssStyleText;
+    private final JTextField cssStyleText;
 
-    private JLabel fileSavePathLabel;
+    private final JLabel fileSavePathLabel;
 
-    private JTextField fileSavePathText;
+    private final JTextField fileSavePathText;
 
-    private JButton fileSaveBtn;
+    private final JButton fileSaveBtn;
 
-    private JButton spiderBtn;
+    private final JButton spiderBtn;
 
-    private JProgressBar progressBar;
+    private final JProgressBar progressBar;
 
     public MainUI() throws HeadlessException {
         this.setLayout(null);
@@ -189,7 +187,8 @@ public class MainUI extends JFrame implements ActionListener, TextListener {
             spiderCommand.setSkuCode(skuCodeText.getText());
         }
         if (StringUtils.isNotBlank(skuCodeText.getText())) {
-            String nikeUrlTextValue = StrUtil.removeSuffix(nikeUrlText.getText(), "/").replaceAll(" ", "");
+            String nikeUrlTextText = nikeUrlText.getText();
+            String nikeUrlTextValue = StringUtils.removeEnd(nikeUrlText.getText(), "/").replaceAll(" ", "");
             String skuCodeTextValue = replaceAll(skuCodeText.getText());
             spiderCommand.setMasterStationUrl(nikeUrlTextValue
                     + StringUtils.replaceEachRepeatedly(SEACH_URL, new String[] { "{skuCode}", "{skuCode}" },

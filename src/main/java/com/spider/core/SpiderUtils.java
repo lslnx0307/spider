@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +24,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import net.lingala.zip4j.ZipFile;
@@ -48,6 +48,8 @@ public class SpiderUtils {
         ChromeDriver chromeDriver = null;
         try {
             if (spiderCommand != null) {
+                System.setProperty("webdriver.chrome.driver", spiderCommand.getChromDriverPath());
+                System.setProperty("https.protocols", "TLSv1.2");
                 // todo 打开浏览器
                 chromeDriver = openChrome(spiderCommand);
                 // todo 解析页面中的素材和文案
@@ -58,7 +60,7 @@ public class SpiderUtils {
             }
         } finally {
             if (chromeDriver != null) {
-                chromeDriver.close();
+                chromeDriver.quit();
             }
             // 视频文件
             File ts = new File(spiderCommand.getExportPath() + "\\video.ts");
@@ -178,10 +180,10 @@ public class SpiderUtils {
     }
 
     private static ChromeDriver openChrome(SpiderCommand spiderCommand) {
-        java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
+        ChromeDriverService service =
+                new ChromeDriverService.Builder().usingDriverExecutable(new File(spiderCommand.getChromDriverPath()))
+                .usingAnyFreePort().build();
         // get system os type mac or windows
-        System.setProperty("webdriver.chrome.driver", spiderCommand.getChromDriverPath());
-        System.setProperty("https.protocols", "TLSv1.2");
         ChromeOptions options = new ChromeOptions();
         List<String> op = new ArrayList<String>();
         // 设置无操作界面

@@ -23,7 +23,7 @@ public class M3U8Downloader {
     public static InputStream downVideo(String m3u8Url, String toFile) throws IOException {
         System.out.println("resource url: " + m3u8Url);
         M3U8 m3u8 = parseIndex(m3u8Url);
-        if (null != null && CollectionUtils.isNotEmpty(m3u8.getTsList())) {
+        if (null != m3u8 && CollectionUtils.isNotEmpty(m3u8.getTsList())) {
             m3u8 = parseIndex(m3u8.getTsList().get(0).getFile());
             File file = new File(toFile + "\\video.ts");
             merge(m3u8, file);
