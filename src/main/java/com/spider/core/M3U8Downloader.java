@@ -1,11 +1,18 @@
 package com.spider.core;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 
 /**
  * @author shiliang.li
@@ -16,14 +23,17 @@ public class M3U8Downloader {
     public static InputStream downVideo(String m3u8Url, String toFile) throws IOException {
         System.out.println("resource url: " + m3u8Url);
         M3U8 m3u8 = parseIndex(m3u8Url);
-        m3u8 = parseIndex(m3u8.getTsList().get(0).getFile());
-        File file = new File(toFile + "\\video.ts");
-        merge(m3u8, file);
-        System.out.println(m3u8.getTsList().toString());
-        InputStream inputStream = new FileInputStream(file);
-        System.out.println("file的path：" + file.getPath());
-        System.out.println("file是否存在：" + file.exists());
-        return inputStream;
+        if (null != null && CollectionUtils.isNotEmpty(m3u8.getTsList())) {
+            m3u8 = parseIndex(m3u8.getTsList().get(0).getFile());
+            File file = new File(toFile + "\\video.ts");
+            merge(m3u8, file);
+            System.out.println(m3u8.getTsList().toString());
+            InputStream inputStream = new FileInputStream(file);
+            System.out.println("file的path：" + file.getPath());
+            System.out.println("file是否存在：" + file.exists());
+            return inputStream;
+        }
+        return null;
     }
 
 
@@ -43,13 +53,16 @@ public class M3U8Downloader {
 
     public static void merge(M3U8 m3u8, File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
-        for (M3U8Ts ts : m3u8.getTsList()) {
-            URL url = new URL(ts.getFile());
-            InputStream inputStream = url.openConnection().getInputStream();
-            IOUtils.copyLarge(inputStream, fos);
-            inputStream.close();
+        System.out.println(m3u8.getTsList().toString());
+        if (CollectionUtils.isNotEmpty(m3u8.getTsList())) {
+            for (M3U8Ts ts : m3u8.getTsList()) {
+                URL url = new URL(ts.getFile());
+                InputStream inputStream = url.openConnection().getInputStream();
+                IOUtils.copyLarge(inputStream, fos);
+                inputStream.close();
+            }
+            fos.close();
         }
-        fos.close();
     }
 
     static M3U8 parseIndex(String url) throws IOException {

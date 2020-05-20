@@ -1,12 +1,12 @@
 package com.spider.core;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,11 +16,13 @@ import java.util.logging.Level;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -42,24 +44,23 @@ public class SpiderUtils {
 
     private static InputStream copyWriteInputStream;
 
-    public static void downZip(SpiderCommand spiderCommand) throws Exception{
+    public static void downZip(SpiderCommand spiderCommand) throws Exception {
         ChromeDriver chromeDriver = null;
         try {
             if (spiderCommand != null) {
-                //todo 打开浏览器
+                // todo 打开浏览器
                 chromeDriver = openChrome(spiderCommand);
-                //todo 解析页面中的素材和文案
+                // todo 解析页面中的素材和文案
                 Set<String> strings = parsePage(chromeDriver, spiderCommand);
-                //todo 打包下载图片
+                // todo 打包下载图片
                 packaging(strings, spiderCommand);
-               
 
             }
-        }finally {
+        } finally {
             if (chromeDriver != null) {
                 chromeDriver.close();
             }
-            //视频文件
+            // 视频文件
             File ts = new File(spiderCommand.getExportPath() + "\\video.ts");
             if (ts.exists()) {
                 ts.delete();
@@ -68,43 +69,47 @@ public class SpiderUtils {
 
     }
 
+    private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) throws Exception {
 
-    private static void packaging(Set<String> imageSet, SpiderCommand spiderCommand) throws Exception{
-
-            if (CollectionUtils.isNotEmpty(imageSet)) {
-                imageSet.forEach(e -> System.out.println(e));
-                AtomicInteger index = new AtomicInteger();
-                ZipFile zipFile = new ZipFile(spiderCommand.getExportPath() + spiderCommand.getSkuCode() + ".zip");
-                ZipParameters zipParameters = new ZipParameters();
-                //设置压缩方法
-                zipParameters.setCompressionMethod(CompressionMethod.DEFLATE);
-                //设置压缩级别
-                zipParameters.setCompressionLevel(CompressionLevel.NORMAL);
-                for (String s : imageSet) {
-                    index.getAndIncrement();
-                    try {
-                        InputStream inputStream;
-                        if (s.contains("m3u8")) {
-                            zipParameters.setFileNameInZip(spiderCommand.getSkuCode() + "-" + index + ".ts");
-                            inputStream = M3U8Downloader.downVideo(s, spiderCommand.getExportPath());
-                        } else {
-                            String imgFileType = getImgFileType(s);
-                            zipParameters.setFileNameInZip(spiderCommand.getSkuCode() + "-" + index + "." + imgFileType);
-                            URL url = new URL(s);
-                            inputStream = url.openConnection().getInputStream();
-                        }
+        if (CollectionUtils.isNotEmpty(imageSet)) {
+            imageSet.forEach(e -> System.out.println(e));
+            AtomicInteger index = new AtomicInteger();
+            ZipFile zipFile = new ZipFile(
+                    spiderCommand.getExportPath() + spiderCommand.getSkuCode() + ".zip");
+            ZipParameters zipParameters = new ZipParameters();
+            // 设置压缩方法
+            zipParameters.setCompressionMethod(CompressionMethod.DEFLATE);
+            // 设置压缩级别
+            zipParameters.setCompressionLevel(CompressionLevel.NORMAL);
+            for (String s : imageSet) {
+                index.getAndIncrement();
+                try {
+                    InputStream inputStream;
+                    if (s.contains("m3u8")) {
+                        zipParameters.setFileNameInZip(spiderCommand.getSkuCode() + "-" + index + ".ts");
+                        inputStream = M3U8Downloader.downVideo(s, spiderCommand.getExportPath());
+                    } else {
+                        String imgFileType = getImgFileType(s);
+                        zipParameters.setFileNameInZip(
+                                spiderCommand.getSkuCode() + "-" + index + "." + imgFileType);
+                        URL url = new URL(s);
+                        inputStream = url.openConnection().getInputStream();
+                    }
+                    if (inputStream != null) {
                         zipFile.addStream(inputStream, zipParameters);
                         inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
 
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                zipParameters.setFileNameInZip(spiderCommand.getSkuCode() + ".txt");
-                zipFile.addStream(copyWriteInputStream, zipParameters);
-                copyWriteInputStream.close();
 
             }
+            zipParameters.setFileNameInZip(spiderCommand.getSkuCode() + ".txt");
+            zipFile.addStream(copyWriteInputStream, zipParameters);
+            copyWriteInputStream.close();
+
+        }
 
         System.out.println("down success");
     }
@@ -118,8 +123,8 @@ public class SpiderUtils {
         Set<String> imageSet = new HashSet<String>();
         if (spiderCommand != null && chromeDriver != null) {
             if (StringUtils.isNotBlank(spiderCommand.getSkuCode())) {
-                WebElement pdpElement = chromeDriver.findElement(By.xpath(
-                        "//*[@id=\"Wall\"]/div/div[5]/div/main/section/div/div/div/figure/a[1]"));
+                WebElement pdpElement = chromeDriver.findElement(
+                        By.ByCssSelector.cssSelector("#Wall > div > div.results__body > div > main > section > div > div > div > figure > a.product-card__link-overlay"));
                 String pdpUrl = pdpElement.getAttribute("href");
                 spiderCommand.setMasterStationUrl(pdpUrl);
                 chromeDriver.get(pdpUrl);
@@ -156,7 +161,7 @@ public class SpiderUtils {
                 String html = select.html();
                 System.out.println("html->" + html);
                 getFileUrlList(html, imageSet);
-                //获取文案内容
+                // 获取文案内容
                 StringBuffer copyWriting = new StringBuffer();
                 for (Element element : select) {
                     copyWriting.append(element.getElementsByTag("h3").text() + "\n");
@@ -174,22 +179,45 @@ public class SpiderUtils {
 
     private static ChromeDriver openChrome(SpiderCommand spiderCommand) {
         java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
-        //get system os type mac or windows
+        // get system os type mac or windows
         System.setProperty("webdriver.chrome.driver", spiderCommand.getChromDriverPath());
         System.setProperty("https.protocols", "TLSv1.2");
         ChromeOptions options = new ChromeOptions();
         List<String> op = new ArrayList<String>();
-        // 设置浏览器最大window size
-        op.add("--start-1990,1030");
         // 设置无操作界面
-        op.add("--headless");
+         op.add("--headless");
+        // 设置浏览器最大window size
+        op.add("--start-maximized");
+        // 无图加载
+        op.add("blink-setting-imagesEnabled-false");
         options.addArguments(op);
         ChromeDriver chromeDriver = new ChromeDriver(options);
         // 设置超时时间
         chromeDriver.manage().timeouts().pageLoadTimeout(180, TimeUnit.SECONDS);
         System.out.println(spiderCommand.getMasterStationUrl());
         chromeDriver.get(spiderCommand.getMasterStationUrl());
+        refushCookie(chromeDriver, spiderCommand.getMasterStationUrl());
+        chromeDriver.get(spiderCommand.getMasterStationUrl());
         return chromeDriver;
+    }
+
+    private static void refushCookie(ChromeDriver chromeDriver, String url) {
+        // 如果是中文后缀,则跳转到中文地址
+        Cookie cookieLocal;
+        Cookie consumer_choice;
+        if (!url.contains("com/cn")) {
+            cookieLocal = new Cookie("nike_locale", "us/en_us", ".nike.com", "/", null, false, false);
+            consumer_choice = new Cookie("CONSUMERCHOICE", "us/en_us", ".nike.com", "/",
+                    DateUtils.addYears(new Date(), 1), false, false);
+        } else {
+            cookieLocal = new Cookie("nike_locale", "cn/zh_cn", ".nike.com", "/", null, false, false);
+            consumer_choice = new Cookie("CONSUMERCHOICE", "cn/zh_cn", ".nike.com", "/",
+                    DateUtils.addYears(new Date(), 1), false, false);
+        }
+        chromeDriver.manage().addCookie(cookieLocal);
+        chromeDriver.manage().addCookie(consumer_choice);
+        // 页面刷新
+        chromeDriver.navigate().refresh();
     }
 
     private static void getFileUrlList(String context, Set<String> imgUrls) {

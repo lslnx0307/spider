@@ -1,5 +1,9 @@
 package com.spider.core;
 
+import org.apache.commons.lang3.StringUtils;
+
+import cn.hutool.core.util.StrUtil;
+
 /**
  * @author shiliang.li
  * @date 2020/5/15
@@ -22,6 +26,9 @@ public class SpiderCommand {
     private String chromDriverPath;
 
     public String getSkuCode() {
+        if (StringUtils.isNotBlank(skuCode)) {
+            return skuCode.trim();
+        }
         return skuCode;
     }
 
@@ -30,6 +37,9 @@ public class SpiderCommand {
     }
 
     public String getPdpUrl() {
+        if (StringUtils.isNotBlank(pdpUrl)) {
+            return pdpUrl.trim();
+        }
         return pdpUrl;
     }
 
@@ -38,6 +48,9 @@ public class SpiderCommand {
     }
 
     public String getCssStyle() {
+        if (StringUtils.isNotBlank(cssStyle)) {
+            return cssStyle.trim();
+        }
         return cssStyle;
     }
 
@@ -46,6 +59,10 @@ public class SpiderCommand {
     }
 
     public String getMasterStationUrl() {
+        if (StringUtils.isNotBlank(masterStationUrl)) {
+            System.out.println(StrUtil.removeSuffix(masterStationUrl, "/").replaceAll(" ", ""));
+            return StrUtil.removeSuffix(masterStationUrl, "/").replaceAll(" ", "");
+        }
         return masterStationUrl;
     }
 
@@ -68,4 +85,5 @@ public class SpiderCommand {
     public void setChromDriverPath(String chromDriverPath) {
         this.chromDriverPath = chromDriverPath;
     }
+
 }
